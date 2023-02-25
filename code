@@ -1,0 +1,293 @@
+    package cinema
+
+    fun purchaseTicket(): List<Int> {
+        println("Enter a row number: ")
+        val rowChoice = readln().toInt()
+        println("Enter a seat number in that row: ")
+        val seatChoice = readln().toInt()
+        var rowSeatPair = mutableListOf(rowChoice, seatChoice)
+        return rowSeatPair
+    }
+
+    fun main() {
+        println("Enter the number of rows: ")
+        val rowN = readln().toInt()
+        println("Enter the number of seats in each row: ")
+        val seatsN = readln().toInt()
+        val totalSeatsN = rowN * seatsN
+
+        var totalIncome = 0
+
+        val listX = (1..seatsN).toList()
+        val listY = (1..rowN).toList()
+
+        // Map doesn't allow duplicates - unique key required
+        // val boughtSeatsMap = mutableMapOf<Int, Int>()
+        val boughtSeatsMap: MultiMap<Int, Int> = MultiMap()
+
+        val menuOptions = """
+        1. Show the seats
+        2. Buy a ticket
+        3. Statistics
+        0. Exit
+        """
+
+    //     do {
+    // 		print menu
+    //      readln -> n
+    //      if n = 1 -> do 1
+    //      if n = 2 -> do 2
+    //      if n = 0 -> do nothing
+    // 	   } while (n != 0)
+
+        do {
+            println(menuOptions) // print menu
+            val inputN = readln().toInt() // readln -> n
+            when (inputN) {
+                1 -> {   // if n = 1 -> do 1
+                        // Print the seating map:
+                    println("")
+                    println("Cinema:")
+                    print("  ")
+                    println(listX.joinToString(" "))  
+                    for (i in 1..rowN) {
+                        print("$i ")
+                        for (j in 1..seatsN) {
+                                 // if (boughtSeatsMap.get(i)==j) {  // if i in rowChoiceList && j in seatChoiceList
+                                 if (boughtSeatsMap.get(i)?.contains(j) == true) {   // if i in rowChoiceList && j in seatChoiceList
+                                     print("B ")
+                                 } else {
+                                     print("S ")
+                                 }
+                        }
+                        println("")
+                    }
+                }
+                2 -> {   // if n = 2 -> do 2
+
+                    // ask for input, first
+                    var rowSeatPair = purchaseTicket()
+                    var rowChoice = rowSeatPair[0]
+                    var seatChoice = rowSeatPair[1]
+
+                    // while (rowChoice > rowN || seatChoice > rowN || boughtSeatsMap.get(rowChoice) == seatChoice) {
+                    while (rowChoice > rowN || seatChoice > rowN || boughtSeatsMap.get(rowChoice)?.contains(seatChoice) == true) {
+                        if (rowChoice > rowN || seatChoice > rowN) {
+                            println("Wrong input!")
+                            println("")
+                        // } else if (boughtSeatsMap.get(rowChoice) == seatChoice) {
+                        } else if (boughtSeatsMap.get(rowChoice)?.contains(seatChoice) == true) {
+                            println("That ticket has already been purchased!")
+                            println("")
+                        }
+                            // keep asking for input, again and again:
+                            rowSeatPair = purchaseTicket()
+                            rowChoice= rowSeatPair[0]
+                            seatChoice = rowSeatPair[1]
+                            // beacause with var (a, b), each time it's a new pair?
+                    }
+
+                    // until you get a correct input, that's when you buy the ticket / put into map
+                        // boughtSeatsMap.put(rowChoice, seatChoice)
+                        boughtSeatsMap.put(rowChoice, seatChoice)
+                        
+
+                        /*
+                            checks: (1) if rowChoice & seatChoice match exactly a part in boughtSeatsMap
+                                        then println("That ticket has already been purchased!")
+                                        ask again for rowChoice & seatChoice
+                                    (2) if rowChoice > rowN  || seatChoice > seatsN
+                                        then println("Wrong input!")
+                                        ask again for rowChoice & seatChoice
+                        */
+                        
+                        // Figure out the ticket price:
+                        if (totalSeatsN <= 60) {
+                            println("Ticket price: $10")
+                            totalIncome += 10
+                        } else {
+                            if(rowN % 2 == 0 && rowChoice <= rowN / 2) {
+                                println("Ticket price: $10")
+                                totalIncome += 10
+                            } else if (rowN % 2 == 0 && rowChoice > rowN / 2) {
+                                println("Ticket price: $8")
+                                totalIncome += 8
+                            } else if (rowN % 2 != 0 && rowChoice <= (rowN - 1) / 2) {
+                                println("Ticket price: $10")
+                                totalIncome += 10
+                            } else if (rowN % 2 != 0 && rowChoice > (rowN - 1) / 2) {
+                                println("Ticket price: $8")
+                                totalIncome += 8
+                            }
+                        }
+                }  
+                3 -> {
+                    
+                    // Total # of Purchased Tickets:
+                    println("Number of purchased tickets: ${boughtSeatsMap.size()}")
+
+                    // Percentage % of Purchased Tickets:
+                    val percentage = boughtSeatsMap.size() / totalSeatsN.toDouble() * 100
+                    val formatPercentage = "%.2f".format(percentage)
+                    println("Percentage: $formatPercentage%")
+                    
+                    println("Current income: \$$totalIncome")
+
+                    // Total Income:
+                        if (totalSeatsN <= 60) {
+                            println("Total income: \$${totalSeatsN * 10}")
+                        } else {
+                            if(rowN % 2 == 0) {
+                                println("Total income: \$${rowN/2 * (10*seatsN + 8*seatsN)}")
+                            } else {
+                                println("Total income: \$${(rowN-1)/2 * 10 * seatsN + (rowN+1)/2 * 8 * seatsN}")
+                            }
+                        }
+                }
+                // if n = 0 -> do nothing
+            }
+        } while (inputN != 0)
+    }
+
+
+    /*
+     1. print menu options
+     >> if menu = 1 -> show seats -> print menu options
+     >> if menu = 2 -> buy ticket -> print menu options
+     >> if menu = 0 -> leave the program / leave the loop
+
+    do {
+        print menu
+        readln -> n
+        if n = 1 -> do 1
+        if n = 2 -> do 2
+        if n = 0 -> do nothing
+    } while (n != 0)
+
+     */
+
+
+
+class MultiMap<K, V> {
+    private var map: MutableMap<K, MutableCollection<V>?> = HashMap()
+ 
+    /**
+    * Add the specified value with the specified key in this multimap.
+    */
+    fun put(key: K, value: V)
+    {
+        if (map[key] == null) {
+            map[key] = ArrayList()
+        }
+        map[key]!!.add(value)
+    }
+ 
+    /**
+    * Associate the specified key with the given value if not
+    * already associated with a value
+    */
+    fun putIfAbsent(key: K, value: V)
+    {
+        if (map[key] == null) {
+            map[key] = ArrayList()
+        }
+ 
+        // if the value is absent, insert it
+        if (!map[key]!!.contains(value)) {
+            map[key]!!.add(value)
+        }
+    }
+ 
+    /**
+    * Returns the Collection of values to which the specified key is mapped,
+    * or null if this multimap contains no mapping for the key.
+    */
+    operator fun get(key: Any?): Collection<V>? {
+        return map[key]
+    }
+ 
+    /**
+    * Returns a Set view of the keys contained in this multimap.
+    */
+    fun keySet(): Set<K> {
+        return map.keys
+    }
+ 
+    /**
+    * Returns a Set view of the mappings contained in this multimap.
+    */
+    fun entrySet(): Set<Map.Entry<K, Collection<V>?>> {
+        return map.entries
+    }
+ 
+    /**
+    * Returns a Collection view of Collection of the values present in
+    * this multimap.
+    */
+    fun values(): Collection<Collection<V>?> {
+        return map.values
+    }
+ 
+    /**
+    * Returns true if this multimap contains a mapping for the specified key.
+    */
+    fun containsKey(key: Any?): Boolean {
+        return map.containsKey(key)
+    }
+ 
+    /**
+    * Removes the mapping for the specified key from this multimap if present
+    * and returns the Collection of previous values associated with key, or
+    * null if there was no mapping for key.
+    */
+    fun remove(key: Any?): Collection<V>? {
+        return map.remove(key)
+    }
+ 
+    /**
+    * Returns the total number of key-value mappings in this multimap.
+    */
+    fun size(): Int {
+        var size = 0
+        for (value in map.values) {
+            size += value!!.size
+        }
+        return size
+    }
+ 
+    /**
+    * Returns true if this multimap contains no key-value mappings.
+    */
+    val isEmpty: Boolean
+        get() = map.isEmpty()
+ 
+    /**
+    * Removes all the mappings from this multimap.
+    */
+    fun clear() {
+        map.clear()
+    }
+ 
+    /**
+    * Removes the entry for the specified key only if it is currently
+    * mapped to the specified value and return true if removed
+    */
+    fun remove(key: K, value: V): Boolean {
+        return if (map[key] != null) map[key]!!.remove(value) else false
+    }
+ 
+    /**
+    * Replaces the entry for the specified key only if currently
+    * mapped to the specified value and return true if replaced
+    */
+    fun replace(key: K, oldValue: V, newValue: V): Boolean {
+        if (map[key] != null)
+        {
+            if (map[key]!!.remove(oldValue)) {
+                return map[key]!!.add(newValue)
+            }
+        }
+        return false
+    }
+}
+ 
